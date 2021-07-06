@@ -129,16 +129,16 @@ func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
 	}
 
 	db.Debug().Model(&User{}).Where("id = ?", id).Take(&User{}).UpdateColumns(
-		map[string]interface{} {
-			"password": user.Password,
-			"fullName": user.FullName,
-			"email": user.Email,
+		map[string]interface{}{
+			"password":  user.Password,
+			"fullName":  user.FullName,
+			"email":     user.Email,
 			"update_at": time.Now(),
 		},
-		)
+	)
 
 	if db.Error != nil {
-		return &User{},db.Error
+		return &User{}, db.Error
 	}
 
 	if err := db.Debug().Model(&User{}).Where("id = ?", id).Take(&user).Error; err != nil {
@@ -156,23 +156,3 @@ func (user *User) DeleteUser(db *gorm.DB, id uint32) (int64, error) {
 
 	return db.RowsAffected, nil
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
