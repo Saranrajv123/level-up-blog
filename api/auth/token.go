@@ -3,22 +3,27 @@ package auth
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 func CreateToken(userId uint32) (string, error) {
+	fmt.Println("userId", userId)
 	claims := jwt.MapClaims{}
 	fmt.Println("claims", claims)
 	claims["authorized"] = true
-	claims["user_id"] = userId
-	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, claims)
+	claims["id"] = userId
+	// claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	fmt.Println("cliams", claims)
+	tk, tk2 := token.SignedString([]byte(os.Getenv("API_SECRET")))
+	fmt.Println("token return ", tk)
+	fmt.Println("token return tk2", tk2)
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
 }
 
@@ -84,7 +89,7 @@ func ExtractTokenID(req *http.Request) (uint32, error) {
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if ok && token.Valid {
-		uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["user_id"]), 10, 32)
+		uid, err := strconv.ParseUint(fmt.Sprintf("%.0f", claims["id"]), 10, 32)
 
 		if err != nil {
 			return 0, err
