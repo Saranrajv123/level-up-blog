@@ -2,8 +2,10 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/saranrajv123/levelupblog/api/auth"
 	"github.com/saranrajv123/levelupblog/api/responses"
 )
@@ -24,4 +26,25 @@ func SetMiddlewareAuthentication(next http.HandlerFunc) http.HandlerFunc {
 		}
 		next(write, r)
 	}
+}
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	errList := map[string]string{}
+
+	return func(ctx *gin.Context) {
+		err := auth.TokenValid(ctx.Request)
+		fmt.Println("err ", err)
+		if err != nil {
+			errList["unauthorized"] = "Unauthorized"
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"status": http.StatusUnauthorized,
+				"error":  errList,
+			})
+			ctx.Abort()
+			return
+		}
+
+		ctx.Next()
+	}
+
 }
